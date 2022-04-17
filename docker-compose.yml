@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  front:
+    build:
+      context: front
+      dockerfile: Dockerfile
+    container_name: admin/front
+    restart: always
+    ports:
+      - ${FRONT_PORT}:3000
+  api:
+    build:
+      context: api
+      dockerfile: Dockerfile
+    container_name: admin/apir
+    restart: always
+    ports:
+      - ${SERVER_PORT}:4000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+volumes:
+  admin:
