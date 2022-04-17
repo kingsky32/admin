@@ -2,7 +2,7 @@ import * as Icons from '@ant-design/icons';
 import React from 'react';
 import { Breadcrumb, Layout as AntdLayout, Menu as AntdMenu } from 'antd';
 import { Link } from 'react-router-dom';
-import { IRoute } from '#apis/types';
+import { IRoute } from '#interfaces/index';
 
 interface LayoutProps {
   children: React.ReactNode | React.ReactNode[];
@@ -31,8 +31,10 @@ function Layout({ children, routes }: LayoutProps): React.ReactElement {
         </h1>
         <AntdMenu theme="dark" defaultSelectedKeys={[`Menu-${window.location.pathname}`]} mode="inline">
           {routes.map((menu: IRoute): React.ReactElement => {
+            const Icon: any = Icons[menu.icon ?? 'StarOutlined'];
+
             return (
-              <AntdMenu.Item key={`Menu-${menu.uri}`} icon={<Icons.SettingOutlined />}>
+              <AntdMenu.Item key={`Menu-${menu.uri}`} icon={<Icon />}>
                 <Link to={menu.uri}>{menu.label}</Link>
               </AntdMenu.Item>
             );

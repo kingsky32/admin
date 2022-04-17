@@ -27,7 +27,7 @@ export class AuthResolver {
 
   @Query(() => User)
   @UseGuards(GqlAuthGuard)
-  whoAmI(@CurrentUser() user: User) {
+  me(@CurrentUser() user: User) {
     return this.usersService.get(user.id);
   }
 }

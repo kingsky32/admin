@@ -1,7 +1,7 @@
 import React from 'react';
 import { ApolloProvider } from '@apollo/client';
 import { ToastContainer } from 'react-toastify';
-import { apolloClient } from '#apis/graphql';
+import { apolloClient } from '#apollo/client';
 
 interface ProviderProps {
   children: React.ReactNode;

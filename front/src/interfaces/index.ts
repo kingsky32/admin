@@ -7,3 +7,15 @@ export interface IRoute {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export enum Role {
+  User = 'user',
+  Admin = 'admin',
+}
+
+export interface IUser {
+  id: string;
+  roles: Role[];
+  username: string;
+  password: string;
+}
