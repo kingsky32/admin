@@ -1,0 +1,66 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Code {
+  code: String!
+  createdAt: DateTime!
+  isActive: Boolean!
+  label: String!
+  updatedAt: DateTime!
+}
+
+type Config {
+  createdAt: DateTime!
+  key: String!
+  updatedAt: DateTime!
+  value: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type LoginResponseDto {
+  accessToken: String!
+  refreshToken: String!
+}
+
+type Mutation {
+  code(code: String!, isActive: Boolean!, label: String!): Code!
+  config(key: String!, value: String!): Config!
+  createUser(email: String!, password: String!, username: String!): User!
+  login(password: String!, username: String!): LoginResponseDto!
+  route(icon: String!, label: String!, uri: String!): Route!
+  uploadFile(file: Upload!): Boolean!
+}
+
+type Query {
+  codes: [Code!]!
+  configs: [Config!]!
+  getUser(id: String!): User!
+  me: User!
+  routes: [Route!]!
+}
+
+type Route {
+  createdAt: DateTime!
+  icon: String
+  label: String!
+  updatedAt: DateTime!
+  uri: String!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  id: String!
+  password: String!
+  roles: String!
+  updatedAt: DateTime!
+  username: String!
+}
