@@ -1,6 +1,7 @@
 import * as Icons from '@ant-design/icons';
 import React from 'react';
 import { Breadcrumb, Layout as AntdLayout, Menu as AntdMenu } from 'antd';
+import { Route as BreadcrumbRoute } from 'antd/lib/breadcrumb/Breadcrumb';
 import { Link, useLocation } from 'react-router-dom';
 import { IRoute } from '#interfaces/index';
 
@@ -35,11 +36,19 @@ function Layout({ children, routes: initialRoutes }: LayoutProps): React.ReactEl
       }, []),
     [initialRoutes],
   );
-  console.log(routes);
   const route = React.useMemo<IRoute | undefined>(
     () => initialRoutes.find((route) => route.uri === location.pathname),
     [location, routes],
   );
+  const itemRender = React.useCallback<
+    (route: BreadcrumbRoute, params: any, routes: BreadcrumbRoute[], paths: string[]) => React.ReactNode
+  >((route: BreadcrumbRoute, params: any, routes: BreadcrumbRoute[], paths: string[]): React.ReactNode => {
+    const last = routes.indexOf(route) === routes.length - 1;
+    if (last) {
+      return <span>{route.breadcrumbName}</span>;
+    }
+    return <Link to={paths.join('/')}>{route.breadcrumbName}</Link>;
+  }, []);
 
   return (
     <AntdLayout style={{ minHeight: '100vh' }}>
@@ -60,14 +69,14 @@ function Layout({ children, routes: initialRoutes }: LayoutProps): React.ReactEl
             </svg>
           </a>
         </h1>
-        <AntdMenu theme="dark" defaultSelectedKeys={[`Menu-${window.location.pathname}`]} mode="inline">
+        <AntdMenu theme="dark" selectedKeys={[`Menu-${window.location.pathname}`]} mode="inline">
           {routes.map((route: Route): React.ReactElement => {
             const Icon: any = Icons[route.icon ?? 'StarOutlined'];
 
             if (route.children.length > 0) {
               return (
                 <AntdMenu.SubMenu title={route.label} icon={<Icon />}>
-                  <AntdMenu.Item>
+                  <AntdMenu.Item key={`Menu-${route.uri}`}>
                     <Link to={route.uri}>{route.label}</Link>
                   </AntdMenu.Item>
                   {route.children.map((route: Route): React.ReactElement => {
@@ -94,7 +103,15 @@ function Layout({ children, routes: initialRoutes }: LayoutProps): React.ReactEl
         <AntdLayout.Content style={{ margin: '0 16px' }}>
           <Breadcrumb
             style={{ margin: '16px 0' }}
-            routes={[{ path: route?.uri ?? '', breadcrumbName: route?.label ?? '' }]}
+            itemRender={itemRender}
+            routes={
+              route?.parent
+                ? [
+                    { path: route?.parent?.uri ?? '', breadcrumbName: route?.parent?.label ?? '' },
+                    { path: route?.uri ?? '', breadcrumbName: route?.label ?? '' },
+                  ]
+                : [{ path: route?.uri ?? '', breadcrumbName: route?.label ?? '' }]
+            }
           />
           <div style={{ padding: 24, background: '#ffffff' }}>{children}</div>
         </AntdLayout.Content>
