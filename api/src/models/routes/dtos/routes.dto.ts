@@ -10,4 +10,7 @@ export class CreateRouteDto {
 
   @Field(() => String)
   icon: string;
+
+  @Field(() => String)
+  parent: string;
 }

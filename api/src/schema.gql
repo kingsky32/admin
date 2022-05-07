@@ -32,7 +32,7 @@ type Mutation {
   config(key: String!, value: String!): Config!
   createUser(email: String!, password: String!, username: String!): User!
   login(password: String!, username: String!): LoginResponseDto!
-  route(icon: String!, label: String!, uri: String!): Route!
+  route(icon: String!, label: String!, parent: String!, uri: String!): Route!
   uploadFile(file: Upload!): Boolean!
 }
 
@@ -48,6 +48,7 @@ type Route {
   createdAt: DateTime!
   icon: String
   label: String!
+  parent: Route
   updatedAt: DateTime!
   uri: String!
 }

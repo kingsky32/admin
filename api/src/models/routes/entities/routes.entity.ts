@@ -1,5 +1,12 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  UpdateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { IRoute } from '#models/routes/interfaces/routes.interface';
 
 @Entity({ name: 'routes' })
@@ -16,6 +23,11 @@ export class Route implements IRoute {
   @Column({ type: 'text', nullable: true })
   @Field(() => String, { nullable: true })
   icon: string;
+
+  @ManyToOne(() => Route, (route) => route.uri, { nullable: true })
+  @JoinColumn({ name: 'parent', referencedColumnName: 'uri' })
+  @Field(() => Route, { nullable: true })
+  parent: Route;
 
   @CreateDateColumn({ name: 'created_at' })
   @Field(() => Date)

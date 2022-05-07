@@ -4,6 +4,7 @@ export interface IRoute {
   uri: string;
   label?: string;
   icon?: keyof typeof Icons;
+  parent?: IRoute;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -1,7 +1,7 @@
 import * as Icons from '@ant-design/icons';
 import React from 'react';
 import { Breadcrumb, Layout as AntdLayout, Menu as AntdMenu } from 'antd';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { IRoute } from '#interfaces/index';
 
 interface LayoutProps {
@@ -9,7 +9,38 @@ interface LayoutProps {
   routes: IRoute[];
 }
 
-function Layout({ children, routes }: LayoutProps): React.ReactElement {
+interface Route extends IRoute {
+  children: Route[];
+}
+
+function Layout({ children, routes: initialRoutes }: LayoutProps): React.ReactElement {
+  const location = useLocation();
+  const routes = React.useMemo<Route[]>(
+    () =>
+      initialRoutes.reduce<Route[]>((p: Route[], c: IRoute) => {
+        const route: Route = { ...c, children: [] };
+
+        if (route.parent) {
+          const findIndex = p.findIndex((_route) => _route.uri === route.parent?.uri);
+          if (findIndex > -1) {
+            p[findIndex].children.push(route);
+          } else {
+            p.push(route);
+          }
+        } else {
+          p.push(route);
+        }
+
+        return p;
+      }, []),
+    [initialRoutes],
+  );
+  console.log(routes);
+  const route = React.useMemo<IRoute | undefined>(
+    () => initialRoutes.find((route) => route.uri === location.pathname),
+    [location, routes],
+  );
+
   return (
     <AntdLayout style={{ minHeight: '100vh' }}>
       <AntdLayout.Sider>
@@ -30,12 +61,29 @@ function Layout({ children, routes }: LayoutProps): React.ReactElement {
           </a>
         </h1>
         <AntdMenu theme="dark" defaultSelectedKeys={[`Menu-${window.location.pathname}`]} mode="inline">
-          {routes.map((menu: IRoute): React.ReactElement => {
-            const Icon: any = Icons[menu.icon ?? 'StarOutlined'];
+          {routes.map((route: Route): React.ReactElement => {
+            const Icon: any = Icons[route.icon ?? 'StarOutlined'];
+
+            if (route.children.length > 0) {
+              return (
+                <AntdMenu.SubMenu title={route.label} icon={<Icon />}>
+                  <AntdMenu.Item>
+                    <Link to={route.uri}>{route.label}</Link>
+                  </AntdMenu.Item>
+                  {route.children.map((route: Route): React.ReactElement => {
+                    return (
+                      <AntdMenu.Item key={`Menu-${route.uri}`}>
+                        <Link to={route.uri}>{route.label}</Link>
+                      </AntdMenu.Item>
+                    );
+                  })}
+                </AntdMenu.SubMenu>
+              );
+            }
 
             return (
-              <AntdMenu.Item key={`Menu-${menu.uri}`} icon={<Icon />}>
-                <Link to={menu.uri}>{menu.label}</Link>
+              <AntdMenu.Item key={`Menu-${route.uri}`} icon={<Icon />}>
+                <Link to={route.uri}>{route.label}</Link>
               </AntdMenu.Item>
             );
           })}
@@ -44,7 +92,10 @@ function Layout({ children, routes }: LayoutProps): React.ReactElement {
       <AntdLayout>
         <AntdLayout.Header style={{ padding: 0 }} />
         <AntdLayout.Content style={{ margin: '0 16px' }}>
-          <Breadcrumb style={{ margin: '16px 0' }} routes={[{ path: '/', breadcrumbName: 'Home' }]} />
+          <Breadcrumb
+            style={{ margin: '16px 0' }}
+            routes={[{ path: route?.uri ?? '', breadcrumbName: route?.label ?? '' }]}
+          />
           <div style={{ padding: 24, background: '#ffffff' }}>{children}</div>
         </AntdLayout.Content>
         <AntdLayout.Footer style={{ textAlign: 'center' }}>Seung Ju ©2022 Created by Seung ju</AntdLayout.Footer>

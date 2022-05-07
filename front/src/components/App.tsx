@@ -1,4 +1,3 @@
-import { Spin } from 'antd';
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
@@ -7,8 +6,9 @@ import Login from '#pages/auth/login';
 import Configs from '#pages/configs';
 import { IRoute, IUser } from '#interfaces/index';
 import withSuspense from '#components/withSuspense';
-import Home from '#pages/index';
 import Layout from '#components/Layout';
+import HomePage from '#pages/index';
+import LoadingPage from '#pages/loading';
 
 interface RoutesData {
   routes: IRoute[];
@@ -24,6 +24,11 @@ const GET_ROUTES = gql`
       uri
       label
       icon
+      parent {
+        uri
+        label
+        icon
+      }
     }
   }
 `;
@@ -42,20 +47,21 @@ const ME = gql`
 function App(): React.ReactElement {
   const routes = useQuery<RoutesData>(GET_ROUTES);
   const me = useQuery<MeData>(ME, { fetchPolicy: 'network-only', skip: !localStorage.getItem(TOKEN_STORE_KEY) });
-
-  if (me.loading) {
-    return <Spin />;
-  }
+  const loading = React.useMemo<boolean>(() => routes.loading || me.loading, [routes.loading, me.loading]);
 
   return (
     <Router>
-      <Layout routes={routes.data?.routes ?? []}>
-        <Routes>
-          <Route index element={<Home />} />
-          <Route path="/configs" element={<Configs />} />
-          <Route path="/auth/login" element={me.data ? <Navigate replace to="/" /> : <Login />} />
-        </Routes>
-      </Layout>
+      {loading ? (
+        <LoadingPage />
+      ) : (
+        <Layout routes={routes.data?.routes ?? []}>
+          <Routes>
+            <Route index element={<HomePage />} />
+            <Route path="/configs" element={<Configs />} />
+            <Route path="/auth/login" element={me.data ? <Navigate replace to="/" /> : <Login />} />
+          </Routes>
+        </Layout>
+      )}
     </Router>
   );
 }

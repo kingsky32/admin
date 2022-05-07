@@ -1,8 +1,14 @@
 import { CreateRouteDto } from '#models/routes/dtos/routes.dto';
+import { IRoute } from '#models/routes/interfaces/routes.interface';
 import { RoutesRepository } from '#models/routes/routes.repository';
 import { Route } from '#models/routes/entities/routes.entity';
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindConditions } from 'typeorm';
 
 @Injectable()
 export class RoutesService {
@@ -12,11 +18,30 @@ export class RoutesService {
   ) {}
 
   async create(createRouteDto: CreateRouteDto): Promise<Route> {
-    return this.routesRepository.create(createRouteDto);
+    const route: IRoute = {
+      uri: createRouteDto.uri,
+      label: createRouteDto.label,
+      icon: createRouteDto.icon,
+    };
+
+    if (createRouteDto.parent) {
+      const parent: IRoute = await this.get({ uri: createRouteDto.parent });
+      if (parent) {
+        route.parent = parent;
+      } else {
+        throw new NotFoundException('Cannot find parent');
+      }
+    }
+
+    return this.routesRepository.create(route);
+  }
+
+  async get(conditions: FindConditions<Route>): Promise<Route> {
+    return this.routesRepository.findOne(conditions);
   }
 
   async getAll(): Promise<Route[]> {
-    return this.routesRepository.find();
+    return this.routesRepository.find({ relations: ['parent'] });
   }
 
   async delete(uri: string): Promise<boolean> {

@@ -36,7 +36,7 @@ export abstract class IMutation {
 
     abstract login(password: string, username: string): LoginResponseDto | Promise<LoginResponseDto>;
 
-    abstract route(icon: string, label: string, uri: string): Route | Promise<Route>;
+    abstract route(icon: string, label: string, parent: string, uri: string): Route | Promise<Route>;
 
     abstract uploadFile(file: Upload): boolean | Promise<boolean>;
 }
@@ -57,6 +57,7 @@ export class Route {
     createdAt: DateTime;
     icon?: Nullable<string>;
     label: string;
+    parent?: Nullable<Route>;
     updatedAt: DateTime;
     uri: string;
 }
